@@ -1,5 +1,5 @@
-import networkx as nx
-import numpy as np
-import matplotlib.pyplot as plt
-import streamlit as st
-import pandas as pd 
+networkx
+numpy
+matplotlib.pyplot
+streamlit
+pandas 
