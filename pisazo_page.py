@@ -1,8 +1,8 @@
-import networkx as nx
 import numpy as np
 import matplotlib.pyplot as plt
 import streamlit as st
 import pandas as pd
+import networkx as nx
 
 
 st.set_page_config(layout="wide", page_title='Tricount Pisazo')
