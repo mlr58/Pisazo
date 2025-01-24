@@ -156,6 +156,55 @@ def main():
     d1.table(debts)
     d2.pyplot(fig)
 
+url = 'https://scu.ugr.es'
+    page = urlopen(url)
+    html_bytes = page.read()
+    html = html_bytes.decode("utf-8")
+    text = html.split('\n')
+
+    words = ['  DE  ', 'Menú 1', 'Menú 2', 'Primero', 'Segundo', 'Acompañamiento', 'Postre']
+
+    for i in reversed(range(len(text))):
+        line = text[i]
+        if not any([x in line for x in words]):
+            text.pop(i)
+        else:
+            text[i] = line.replace('\t', '').replace('<th class="leftalign" colspan="2"><strong>', '')\
+                .replace('</strong>  </th><th class="rightalign">  </th>', '')\
+                .replace('<td colspan="2"><strong>', '')\
+                .replace('</strong> </td><td><strong><em>Alérgenos</em></strong></td>', '')\
+                .replace('<td class="leftalign">', '')\
+                .replace('  </td><td class="leftalign"><strong>', '')\
+                .replace('</strong>  </th><th class="rightalign">  </th>', '')\
+                .replace('  </td><strong>', ': ')\
+                .replace('  ', ' ')
+            text[i] = text[i].split('</strong>')[0]
+
+    today = datetime.today().day
+    a = 0
+
+    for i in range(len(text)):
+        line = text[i]
+        if f"{today+1} DE" in line:
+            text = text[0:i]
+            break
+    text = text[1:]
+    for i in range(len(text)):
+        try:
+            text[i] = text[i].split(': ')[1]
+        except:
+            pass
+    menu1 = text[:int(len(text)/2)]
+    menu2 = text[int(len(text)/2):]
+
+    df = pd.DataFrame(columns=[x[0] for x in [menu1, menu2]])
+    df[menu1[0]] = menu1[1:]
+    df[menu2[0]] = menu2[1:]
+
+    with st.sidebar:
+        st.markdown(df.style.hide(axis="index").to_html(), unsafe_allow_html=True)
+
+
 
 if __name__=='__main__':
     main()
