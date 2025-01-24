@@ -160,7 +160,7 @@ def main():
     d1.table(debts)
     d2.pyplot(fig)
 
-url = 'https://scu.ugr.es'
+    url = 'https://scu.ugr.es'
     page = urlopen(url)
     html_bytes = page.read()
     html = html_bytes.decode("utf-8")
