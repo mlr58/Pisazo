@@ -185,12 +185,22 @@ def main():
             text[i] = text[i].split('</strong>')[0]
 
     today = datetime.today().day
-    a = 0
+
+    for i in range(len(text)):
+        if text[i] == text[0] and i != 0:
+            text = text[0:i]
+            break
 
     for i in range(len(text)):
         line = text[i]
         if f"{today+1} DE" in line:
             text = text[0:i]
+            break
+
+    for i in range(len(text)):
+        line = text[i]
+        if f"{today} DE" in line:
+            text = text[i:]
             break
     text = text[1:]
     for i in range(len(text)):
