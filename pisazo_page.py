@@ -9,7 +9,7 @@ from datetime import datetime
 import datetime as dt
 
 
-st.set_page_config(layout="wide", page_title='Tricount Pisazo')
+st.set_page_config(layout="wide", page_title='PisazoCount')
 
 pisazers = ['Irene', 'Eddie', 'Manolo', 'Bea', 'Manu']
 
