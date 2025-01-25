@@ -61,7 +61,7 @@ def plot_info():
 
 def main():
     st.write('''
-# Tricount Pisazo
+# PisazoCount
 ''')
 
     c11, c12, c13, c14, c15, c16 = st.columns(6)
