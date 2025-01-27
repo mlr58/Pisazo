@@ -19,46 +19,6 @@ for pisazer1 in pisazers:
         if pisazer1 != pisazer2:
             combinations.append((pisazer1,pisazer2))
 
-def plot_info():
-    edges_and_debts = dict()
-    for combination in combinations:
-        edges_and_debts[combination] = float(input(f"{combination[0]}→{combination[1]}: ").replace(',', '.'))
-    edges_and_debts
-
-    debts = dict()
-    for pisazer in pisazers:
-        debts[pisazer] = 0
-        for combination in list(edges_and_debts):
-            if pisazer == combination[0]:
-                debts[pisazer] -= edges_and_debts[combination]
-            elif pisazer == combination[1]:
-                debts[pisazer] += edges_and_debts[combination]
-    for index in list(debts):
-        debts[index] = round(debts[index], 2)
-
-    pisazo = nx.DiGraph()
-    labels = dict()
-    edges = []
-    debts_copy = debts.copy()
-
-    for debtor in [x for x in list(debts_copy) if debts_copy[x]<0]:
-        for creditor in [x for x in list(debts_copy) if debts_copy[x]>0]:
-            pay = min(debts_copy[creditor], -debts_copy[debtor])
-            if pay != 0:
-                edges.append([debtor, creditor])
-                debts_copy[creditor] -= pay
-                debts_copy[debtor] += pay
-                labels[(debtor, creditor)] = round(pay, 2)
-    pisazo.add_edges_from(edges)
-    pos = nx.spring_layout(pisazo)
-    plt.figure()
-    nx.draw_planar(pisazo, pos,
-                with_labels='True', 
-                node_color='blue',
-                node_size=1000)
-    
-    return nx.draw_networkx_edge_labels(pisazo, pos, edge_labels=labels, font_color="red")
-
 def main():
     st.write('''
 # PisazoCount
