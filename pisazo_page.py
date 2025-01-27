@@ -19,6 +19,46 @@ for pisazer1 in pisazers:
         if pisazer1 != pisazer2:
             combinations.append((pisazer1,pisazer2))
 
+def plot_info():
+    edges_and_debts = dict()
+    for combination in combinations:
+        edges_and_debts[combination] = float(input(f"{combination[0]}→{combination[1]}: ").replace(',', '.'))
+    edges_and_debts
+
+    debts = dict()
+    for pisazer in pisazers:
+        debts[pisazer] = 0
+        for combination in list(edges_and_debts):
+            if pisazer == combination[0]:
+                debts[pisazer] -= edges_and_debts[combination]
+            elif pisazer == combination[1]:
+                debts[pisazer] += edges_and_debts[combination]
+    for index in list(debts):
+        debts[index] = round(debts[index], 2)
+
+    pisazo = nx.DiGraph()
+    labels = dict()
+    edges = []
+    debts_copy = debts.copy()
+
+    for debtor in [x for x in list(debts_copy) if debts_copy[x]<0]:
+        for creditor in [x for x in list(debts_copy) if debts_copy[x]>0]:
+            pay = min(debts_copy[creditor], -debts_copy[debtor])
+            if pay != 0:
+                edges.append([debtor, creditor])
+                debts_copy[creditor] -= pay
+                debts_copy[debtor] += pay
+                labels[(debtor, creditor)] = round(pay, 2)
+    pisazo.add_edges_from(edges)
+    pos = nx.spring_layout(pisazo)
+    plt.figure()
+    nx.draw_planar(pisazo, pos,
+                with_labels='True', 
+                node_color='blue',
+                node_size=1000)
+    
+    return nx.draw_networkx_edge_labels(pisazo, pos, edge_labels=labels, font_color="red")
+
 def main():
     st.write('''
 # PisazoCount
@@ -120,65 +160,68 @@ def main():
     d1.table(debts)
     d2.pyplot(fig)
 
+    try:
+        url = 'https://scu.ugr.es'
+        page = urlopen(url)
+        html_bytes = page.read()
+        html = html_bytes.decode("utf-8")
+        text = html.split('\n')
 
-    url = 'https://scu.ugr.es'
-    page = urlopen(url)
-    html_bytes = page.read()
-    html = html_bytes.decode("utf-8")
-    text = html.split('\n')
+        words = ['  DE  ', 'Menú 1', 'Menú 2', 'Primero', 'Segundo', 'Acompañamiento', 'Postre', 'Cremas y sopas']
 
-    words = ['  DE  ', 'Menú 1', 'Menú 2', 'Primero', 'Segundo', 'Acompañamiento', 'Postre', 'Cremas y sopas']
+        for i in reversed(range(len(text))):
+            line = text[i]
+            if not any([x in line for x in words]):
+                text.pop(i)
+            else:
+                text[i] = line.replace('\t', '').replace('<th class="leftalign" colspan="2"><strong>', '')\
+                    .replace('</strong>  </th><th class="rightalign">  </th>', '')\
+                    .replace('<td colspan="2"><strong>', '')\
+                    .replace('</strong> </td><td><strong><em>Alérgenos</em></strong></td>', '')\
+                    .replace('<td class="leftalign">', '')\
+                    .replace('  </td><td class="leftalign"><strong>', '')\
+                    .replace('</strong>  </th><th class="rightalign">  </th>', '')\
+                    .replace('  </td><strong>', ': ')\
+                    .replace('  ', ' ')
+                text[i] = text[i].split('</strong>')[0]
 
-    for i in reversed(range(len(text))):
-        line = text[i]
-        if not any([x in line for x in words]):
-            text.pop(i)
-        else:
-            text[i] = line.replace('\t', '').replace('<th class="leftalign" colspan="2"><strong>', '')\
-                .replace('</strong>  </th><th class="rightalign">  </th>', '')\
-                .replace('<td colspan="2"><strong>', '')\
-                .replace('</strong> </td><td><strong><em>Alérgenos</em></strong></td>', '')\
-                .replace('<td class="leftalign">', '')\
-                .replace('  </td><td class="leftalign"><strong>', '')\
-                .replace('</strong>  </th><th class="rightalign">  </th>', '')\
-                .replace('  </td><strong>', ': ')\
-                .replace('  ', ' ')
-            text[i] = text[i].split('</strong>')[0]
+        today = datetime.today().day
 
-    today = datetime.today().day
+        for i in range(len(text)):
+            if text[i] == text[0] and i != 0:
+                text = text[0:i]
+                break
 
-    for i in range(len(text)):
-        if text[i] == text[0] and i != 0:
-            text = text[0:i]
-            break
+        for i in range(len(text)):
+            line = text[i]
+            if f"{today+1} DE" in line:
+                text = text[0:i]
+                break
 
-    for i in range(len(text)):
-        line = text[i]
-        if f"{today+1} DE" in line:
-            text = text[0:i]
-            break
+        for i in range(len(text)):
+            line = text[i]
+            if f"{today} DE" in line:
+                text = text[i:]
+                break
+        text = text[1:]
+        for i in range(len(text)):
+            try:
+                text[i] = text[i].split(': ')[1]
+            except:
+                pass
+        menu1 = text[:text.index('Menú 2')]
+        menu2 = text[text.index('Menú 2'):]
 
-    for i in range(len(text)):
-        line = text[i]
-        if f"{today} DE" in line:
-            text = text[i:]
-            break
-    text = text[1:]
-    for i in range(len(text)):
-        try:
-            text[i] = text[i].split(': ')[1]
-        except:
-            pass
-    menu1 = text[:int(len(text)/2)]
-    menu2 = text[int(len(text)/2):]
 
-    df = pd.DataFrame(columns=[x[0] for x in [menu1, menu2]])
-    df[menu1[0]] = menu1[1:]
-    df[menu2[0]] = menu2[1:]
+        menu1 = pd.DataFrame(menu1[1:], columns = [menu1[0]])
+        menu2 = pd.DataFrame(menu2[1:], columns = [menu2[0]])
+        df = pd.concat([menu1, menu2], axis=1).fillna('')
+    
+        with st.sidebar:
+            st.markdown(df.style.hide(axis="index").to_html(), unsafe_allow_html=True)
 
-    with st.sidebar:
-        st.markdown(df.style.hide(axis="index").to_html(), unsafe_allow_html=True)
-
+    except:
+        pass
 
 
 
