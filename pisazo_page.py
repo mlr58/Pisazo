@@ -167,7 +167,7 @@ def main():
         html = html_bytes.decode("utf-8")
         text = html.split('\n')
 
-        words = ['  DE  ', 'Menú 1', 'Menú 2', 'Primero', 'Segundo', 'Acompañamiento', 'Postre', 'Cremas y sopas']
+        words = ['  DE  ', 'Menú 1', 'Menú 2', 'Primero', 'Segundo', 'Acompañamiento', 'Postre', 'Cremas y sopas', 'Ensaladas']
 
         for i in reversed(range(len(text))):
             line = text[i]
